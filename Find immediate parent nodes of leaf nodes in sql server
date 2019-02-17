@@ -1,0 +1,57 @@
+-- This code was written by Srijon Chakraborty
+-- Find immediate parent nodes of leaf nodes in sql server
+-- How to find leaf nodes immediate parent from a tree in sql server
+-- All my other source codes are available on http://srijon.softallybd.com (Personal Blog)
+    
+                        TREE
+--------------------------------------------------------------
+                1
+                |___2___3
+                |
+                |___5
+                |   |___6
+                |   |
+                |   |___7___10
+                |
+                |___4___8___9
+
+--------------------------------------------------------------
+Result will be :2,5,7,8 // If  cst.SubTreeRoot =1
+Result will be :5,7 // If  cst.SubTreeRoot =5
+------------------Query Start---------------------------------
+
+DECLARE @TREE TABLE (
+  PKID int NOT NULL,
+  ParentID int NULL
+);
+INSERT @TREE
+  VALUES (1, NULL), (2, 1), (3, 2), (5, 1),
+  (6, 5), (4, 1), (7, 5), (8, 4), (9, 8), (10, 7);
+
+WITH CategorySubTree
+AS (SELECT
+  cc.PKID AS SubTreeRoot,
+  PKID CategoryId
+FROM @TREE cc
+UNION ALL
+SELECT
+  cst.SubTreeRoot,
+  cc.PKID CategoryId
+FROM @TREE cc
+INNER JOIN CategorySubTree cst
+  ON cst.CategoryId = cc.ParentID)
+
+SELECT
+  PKID,
+  ParentID
+FROM @TREE t
+WHERE t.PKID IN (SELECT
+  cst.CategoryId
+FROM CategorySubTree cst
+WHERE cst.SubTreeRoot = 1)
+AND NOT EXISTS (SELECT
+  1
+FROM @TREE
+WHERE ParentID = t.PKID)
+
+-------------------Query END-----------------------------------
