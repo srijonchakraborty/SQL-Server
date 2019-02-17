@@ -1,0 +1,33 @@
+-- This code was written by Srijon Chakraborty
+-- Find leaf nodes of the tree in SQL Sever
+-- How to find leaf nodes in a tree sql server query
+-- All my other source codes are available on http://srijon.softallybd.com (Personal Blog)
+
+                    TREE
+--------------------------------------------------------------
+                1
+                |___2___3
+                |
+                |___5
+                |   |___6
+                |   |
+                |   |___7___10
+                |
+                |___4___8___9
+
+--------------------------------------------------------------
+------------------Query Start---------------------------------
+
+DECLARE @TREE TABLE (PKID int NOT NULL, ParentID int NULL);
+INSERT @TREE VALUES (1, NULL), (2, 1),  (3, 2),  (5, 1), 
+             (6, 5), (4, 1), (7, 5), (8, 4), (9, 8), (10, 7);
+
+SELECT DISTINCT PKID
+FROM @TREE t
+WHERE NOT EXISTS (
+    SELECT *
+    FROM @TREE tx
+    WHERE tx.ParentID = t.PKID
+    );
+
+-------------------Query END-----------------------------------
