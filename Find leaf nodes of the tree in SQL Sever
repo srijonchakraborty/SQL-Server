@@ -16,6 +16,7 @@
                 |___4___8___9
 
 --------------------------------------------------------------
+Result will be :3,6,9,10
 ------------------Query Start---------------------------------
 
 DECLARE @TREE TABLE (PKID int NOT NULL, ParentID int NULL);
