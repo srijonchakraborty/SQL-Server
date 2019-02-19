@@ -1,0 +1,24 @@
+-- This code was written by Srijon Chakraborty
+-- Find immediate parent nodes of leaf nodes in sql server
+-- UPDATE ONE TABLE COLUMN FROM ANOTHER TABLE COLUMN IN SQL SERVER
+-- HOW TO UPDATE COLUMN IN A TABLE FROM ANOTHER TABLE USING CONDITION?
+-- All my other source codes are available on http://srijon.softallybd.com (Personal Blog)
+
+----------------------------------Table Structure------------------------------------------------------
+--Employees (Table)
+--EmployeeID,Code,Name,DepartmentID (Columns)
+
+--Users (Table)
+--UserID,EmployeeID,LoginID,	Name	,Password	(Columns)
+
+--ApprovalCategories (Table)
+--CategoryID,Code,Name,Description,ParentCategoryID,UserID	,TaggedDepartmentID (Columns)
+------------------------------------------------------------------------------------------------------
+-- SQL 
+UPDATE APPROVALCATEGORIES 
+  SET TAGGEDDEPARTMENTID= EM.DEPARTMENTID
+FROM USERS U 
+INNER JOIN EMPLOYEES EM ON EM.EMPLOYEEID=U.EMPLOYEEID 
+WHERE U.USERID=APPROVALCATEGORIES.USERID 
+
+
