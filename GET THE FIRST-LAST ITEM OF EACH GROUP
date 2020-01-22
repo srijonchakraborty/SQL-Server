@@ -1,0 +1,55 @@
+
+
+------------------------- GET THE FIRST ITEM OF EACH GROUP -------------------------
+declare @T table (PKID int, GroupID int, Price int)
+insert into @T values
+(1, 1, 100),
+(2, 1, 200),
+(3, 1, 300),
+(4, 2, 98),
+(5, 2, 198),
+(6, 3, 175),
+(7, 3, 275),
+(8, 3, 375),
+(9, 4, 215)
+
+;with cte as
+(
+  select
+    PKID,
+    GroupID,
+    Price,
+    rank() over(partition by GroupID order by PKID) as rn
+  from @T
+)  
+select PKID, GroupID, Price
+from cte
+where rn = 1 ---using rn Number You can any th. of Item
+------------------------- GET THE FIRST ITEM OF EACH GROUP -------------------------
+
+------------------------- GET THE LAST ITEM OF EACH GROUP -------------------------
+declare @T table (PKID int, GroupID int, Price int)
+insert into @T values
+(1, 1, 100),
+(2, 1, 200),
+(3, 1, 300),
+(4, 2, 98),
+(5, 2, 198),
+(6, 3, 175),
+(7, 3, 275),
+(8, 3, 375),
+(9, 4, 215)
+
+;with cte as
+(
+  select
+    PKID,
+    GroupID,
+    Price,
+    rank() over(partition by GroupID order by PKID DESC) as rn
+  from @T
+)  
+select PKID, GroupID, Price
+from cte
+where rn = 1 ---using rn Number You can any th. of Item 
+------------------------- GET THE LAST ITEM OF EACH GROUP -------------------------
