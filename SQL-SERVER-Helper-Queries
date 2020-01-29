@@ -1,0 +1,30 @@
+----------------------- Currently Executing Queries in SQL SERVER ----------------------- 
+SELECT sqltext.TEXT,
+req.session_id,
+req.status,
+req.command,
+req.cpu_time,
+req.total_elapsed_time
+FROM sys.dm_exec_requests req
+CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext
+
+
+-----------------------SQL SERVER – How to See Active SQL Server Connections For Database-----------------------
+
+SELECT DB_NAME(dbid) AS DBName,
+COUNT(dbid) AS NumberOfConnections,
+loginame
+FROM    sys.sysprocesses
+GROUP BY dbid, loginame
+ORDER BY DB_NAME(dbid);
+
+-----------------------Script to kill all connections to a database (More than RESTRICTED_USER ROLLBACK)-----------------------
+
+USE master;
+
+DECLARE @kill varchar(8000); SET @kill = '';  
+SELECT @kill = @kill + 'kill ' + CONVERT(varchar(5), spid) + ';'  
+FROM master..sysprocesses  
+WHERE dbid = db_id('MyDB')
+
+EXEC(@kill); 
