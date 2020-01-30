@@ -57,7 +57,8 @@ REFERENCE LINK: https://www.dbrnd.com/2016/04/sql-server-8-different-ways-to-det
 		,resource_type AS LockedResource
 		,request_mode AS LockType
 	FROM sys.dm_tran_locks 	
-5.Count total number of DeadLock:
+	
+-----------------------Count total number of DeadLock:-----------------------
     SELECT *,cntr_value AS TotalNumberOfDeadLocks
 	FROM sys.dm_os_performance_counters
 	WHERE counter_name = 'Number of Deadlocks/sec'
