@@ -28,3 +28,33 @@ FROM master..sysprocesses
 WHERE dbid = db_id('MyDB')
 
 EXEC(@kill); 
+
+
+REFERENCE LINK: https://www.dbrnd.com/2016/04/sql-server-8-different-ways-to-detect-a-deadlock-in-a-database/#prettyPhoto
+-----------------------Using SP_LOCK, you can find the WAIT status for blocking sessions-----------------------
+ 	EXEC SP_LOCK;
+-----------------------Using sys.sysprocesses----------------------- 	
+  SELECT * FROM sys.sysprocesses 
+  WHERE blocked > 0;
+-----------------------Using common DMV-----------------------
+	SELECT 	
+		der.blocking_session_id AS BlockingSessionID
+		,dest.text AS BlockingStatement
+	FROM sys.dm_exec_connections AS sdec
+	INNER JOIN sys.dm_exec_requests AS der
+	    ON sdec.session_id = der.blocking_session_id
+	INNER JOIN sys.dm_os_waiting_tasks AS dowt
+	    ON der.session_id = dowt.session_id
+	CROSS APPLY sys.dm_exec_sql_text(sdec.most_recent_sql_handle) AS dest;
+-----------------------Using sys.dm_tran_locks------------------------
+	SELECT 
+		request_session_id AS SPID 
+		,DB_NAME(resource_database_id) AS DatabaseName
+		,resource_type AS LockedResource
+		,request_mode AS LockType
+	FROM sys.dm_tran_locks 	
+5.Count total number of DeadLock:
+    SELECT *,cntr_value AS TotalNumberOfDeadLocks
+	FROM sys.dm_os_performance_counters
+	WHERE counter_name = 'Number of Deadlocks/sec'
+	   AND instance_name = '_Total'	
