@@ -1,0 +1,50 @@
+---https://github.com/srijonchakraborty/SQL-Server/edit/master/Comma_STRING_TO_INT_TABLE
+-- GET ALL Child node of a certain node
+--- How to get all children of a node in tree structure
+
+USE YOUR_DATABASE
+
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE FUNCTION [dbo].[GetHierarchyNodeChildIDs]
+(
+	@ParentNodeIDs varchar(5000) -- COMMA Separated IDs
+)
+RETURNS Varchar(5000)
+AS
+BEGIN	 
+  DECLARE @ChildIDs Varchar(5000);
+   DECLARE @tempChildIDs Varchar(5000);
+  
+  SET @ChildIDs=(SELECT  STUFF((SELECT ', ' + CAST(NodeID AS VARCHAR(1000)) [text()]
+							 FROM HierarchyNode 
+							 WHERE ParentNodeID = t.ParentNodeID
+							 FOR XML PATH(''), TYPE)
+							 .value('.','NVARCHAR(MAX)'),1,2,' ')
+			 FROM HierarchyNode t
+			 INNER JOIN (Select * from dbo.STRING_TO_INT_TABLE(@ParentNodeIDs)) PP ON t.ParentNodeID=PP.NUMBER ---Find STRING_TO_INT_TABLE Function https://github.com/srijonchakraborty/SQL-Server/edit/master/Comma_STRING_TO_INT_TABLE
+			 GROUP BY t.ParentNodeID)
+  
+IF @ChildIDs IS NULL
+	BEGIN
+		RETURN ''
+	END
+ELSE 
+    BEGIN
+		SET @tempChildIDs= [dbo].[GetHierarchyNodeChildIDs](@ChildIDs);
+		IF @tempChildIDs IS NULL OR @tempChildIDs=''
+			BEGIN
+				RETURN @ChildIDs;
+			END
+		ELSE
+			BEGIN
+				RETURN @ChildIDs+','+@tempChildIDs;
+			END
+	END
+	RETURN @ChildIDs;
+END
