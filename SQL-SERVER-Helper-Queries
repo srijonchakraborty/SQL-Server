@@ -86,3 +86,26 @@ REFERENCE LINK: https://www.dbrnd.com/2016/04/sql-server-8-different-ways-to-det
 	WHERE counter_name = 'Number of Deadlocks/sec'
 	   AND instance_name = '_Total'	
 	   
+----------------s will show you the longest running SPIDs on a SQL 2000 or SQL 2005 server:--------------- 
+---- https://stackoverflow.com/questions/941763/list-the-queries-running-on-sql-server
+select
+    P.spid
+,   right(convert(varchar, 
+            dateadd(ms, datediff(ms, P.last_batch, getdate()), '1900-01-01'), 
+            121), 12) as 'batch_duration'
+,   P.program_name
+,   P.hostname
+,   P.loginame
+,P.*
+from master.dbo.sysprocesses P
+where --P.spid > 50
+--and      
+P.status not in ('background', 'sleeping')
+and      P.cmd not in ('AWAITING COMMAND'
+                    ,'MIRROR HANDLER'
+                    ,'LAZY WRITER'
+                    ,'CHECKPOINT SLEEP'
+                    ,'RA MANAGER')
+order by batch_duration desc
+
+
