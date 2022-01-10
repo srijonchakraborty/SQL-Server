@@ -108,30 +108,19 @@ and      P.cmd not in ('AWAITING COMMAND'
                     ,'RA MANAGER')
 order by batch_duration desc
 
------------------------------------Missing Index Execution Plan ----------------------------------------------------------
----SOURCE---https://dba.stackexchange.com/questions/106188/missing-index-not-displaying-in-execution-plan
-SELECT *
-FROM sys.dm_db_missing_index_details
---Where database_id=84
+-----------------------------------SQL Server - how to identify if table is heap or B-tree ----------------------------------------------------------
+--https://stackoverflow.com/questions/25502950/sql-server-how-to-identify-if-table-is-heap-or-b-tree
+select 
+    o.name, 
+    o.object_id, 
+    case 
+      when p.index_id = 0 then 'Heap'
+      when p.index_id = 1 then 'Clustered Index/b-tree'
+      when p.index_id > 1 then 'Non-clustered Index/b-tree'
+    end as 'Type'
+from sys.objects o
+inner join sys.partitions p on p.object_id = o.object_id
+where name = 'YourTableName'
 
-WITH CTE AS
-
-(
-SELECT  id.index_handle, DBName=DB_NAME(id.database_id), id.object_id, id.statement AS object_name, 
-        gs.avg_user_impact, gs.avg_total_user_cost,
-        id.equality_columns, id.inequality_columns, id.included_columns,
-        gs.unique_compiles, gs.user_seeks, gs.last_user_seek, gs.last_system_seek, 
-        gs.user_scans, gs.last_user_scan, gs.system_scans
-FROM sys.dm_db_missing_index_details as id
-INNER JOIN sys.dm_db_missing_index_groups as g
-        ON id.index_handle = g.index_handle
-INNER JOIN sys.dm_db_missing_index_group_stats as gs
-        ON g.index_group_handle = gs.group_handle
---Where id.database_id=84
---ORDER BY gs.avg_user_impact DESC
-)
-SELECT * FROM  CTE WHERE DBName='SMCDSS_Live'
-ORDER BY avg_user_impact DESC
-
------------------------------------Missing Index Execution Plan ----------------------------------------------------------
+-----------------------------------SQL Server - how to identify if table is heap or B-tree ----------------------------------------------------------
 
