@@ -1,4 +1,4 @@
----- -- -- -- -- -- --  Unused Index Script---- -- -- -- -- -- -- 
+------------------------------------------------------ Unused Index Script------------------------------------------------------
 https://blog.sqlauthority.com/2011/01/04/sql-server-2008-unused-index-script-download/
 
 SELECT TOP 25
@@ -28,4 +28,31 @@ AND i.is_primary_key = 0
 AND i.is_unique_constraint = 0
 ORDER BY (dm_ius.user_seeks + dm_ius.user_scans + dm_ius.user_lookups) ASC
 GO
----- -- -- -- -- -- --  Unused Index Script---- -- -- -- -- -- -- 
+------------------------------------------------------ Unused Index Script------------------------------------------------------
+
+-----------------------------------Missing Index Execution Plan ----------------------------------------------------------
+---SOURCE---https://dba.stackexchange.com/questions/106188/missing-index-not-displaying-in-execution-plan
+SELECT *
+FROM sys.dm_db_missing_index_details
+--Where database_id=84
+
+WITH CTE AS
+
+(
+SELECT  id.index_handle, DBName=DB_NAME(id.database_id), id.object_id, id.statement AS object_name, 
+        gs.avg_user_impact, gs.avg_total_user_cost,
+        id.equality_columns, id.inequality_columns, id.included_columns,
+        gs.unique_compiles, gs.user_seeks, gs.last_user_seek, gs.last_system_seek, 
+        gs.user_scans, gs.last_user_scan, gs.system_scans
+FROM sys.dm_db_missing_index_details as id
+INNER JOIN sys.dm_db_missing_index_groups as g
+        ON id.index_handle = g.index_handle
+INNER JOIN sys.dm_db_missing_index_group_stats as gs
+        ON g.index_group_handle = gs.group_handle
+--Where id.database_id=84
+--ORDER BY gs.avg_user_impact DESC
+)
+SELECT * FROM  CTE WHERE DBName='SMCDSS_Live'
+ORDER BY avg_user_impact DESC
+
+-----------------------------------Missing Index Execution Plan ----------------------------------------------------------
