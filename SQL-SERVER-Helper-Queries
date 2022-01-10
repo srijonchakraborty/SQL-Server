@@ -122,5 +122,9 @@ from sys.objects o
 inner join sys.partitions p on p.object_id = o.object_id
 where name = 'YourTableName'
 
+--0 = heap
+--1 = clustered index
+--2 or greater = nonclustered
+
 -----------------------------------SQL Server - how to identify if table is heap or B-tree ----------------------------------------------------------
 
